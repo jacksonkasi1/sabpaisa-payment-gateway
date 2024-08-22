@@ -29,25 +29,48 @@ export default function Home() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+  
     try {
       const response = await axios.post('http://localhost:8000/api/create-payment-session', formData, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
+  
       const data = response.data;
       console.log('Payment session created:', data);
+  
       if (data.url) {
-        window.location.href = `${data.url}?encData=${encodeURIComponent(data.encData)}&clientCode=${data.clientCode}`;
+        // Create a form element
+        const form = document.createElement('form');
+        form.action = data.url;
+        form.method = 'POST';
+  
+        // Create hidden input fields for encData and clientCode
+        const encDataInput = document.createElement('input');
+        encDataInput.type = 'hidden';
+        encDataInput.name = 'encData';
+        encDataInput.value = data.encData;
+  
+        const clientCodeInput = document.createElement('input');
+        clientCodeInput.type = 'hidden';
+        clientCodeInput.name = 'clientCode';
+        clientCodeInput.value = data.clientCode;
+  
+        // Append inputs to the form
+        form.appendChild(encDataInput);
+        form.appendChild(clientCodeInput);
+  
+        // Append the form to the body and submit it
+        document.body.appendChild(form);
+        form.submit();
       }
     } catch (error) {
       console.error('Error creating payment session:', error);
       // Handle the error appropriately in your application
     }
   };
-
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form 

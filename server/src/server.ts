@@ -53,7 +53,7 @@ app.post("/api/create-payment-session", (req: Request, res: Response) => {
   const clientTxnId = crypto.randomBytes(16).toString("hex");
 
   // Create the string for encryption
-  const stringForRequest = `payerName=${firstName.trim()} ${lastName.trim()}&payerEmail=${email.trim()}&payerMobile=${phone.trim()}&clientTxnId=${clientTxnId.trim()}&amount=${amount}&clientCode=${clientCode.trim()}&transUserName=${transUserName.trim()}&transUserPassword=${transUserPassword.trim()}&callbackUrl=https://c431-103-43-65-80.ngrok-free.app/payment-webhook&channelId=W&transDate=${new Date().toISOString()}`;
+  const stringForRequest = `payerName=${firstName.trim()} ${lastName.trim()}&payerEmail=${email.trim()}&payerMobile=${phone.trim()}&clientTxnId=${clientTxnId.trim()}&amount=${amount}&clientCode=${clientCode.trim()}&transUserName=${transUserName.trim()}&transUserPassword=${transUserPassword.trim()}&callbackUrl=https://afa8-103-43-65-80.ngrok-free.app/api/payment-webhook&channelId=W&transDate=${new Date().toISOString()}`;
 
   // Encrypt the string
   const encData = encrypt(stringForRequest);
@@ -91,7 +91,14 @@ app.post("/api/payment-webhook", (req: Request, res: Response) => {
     console.log("Payment Failed or Other Status:", responseParams);
   }
 
-  res.status(200).send("Webhook received");
+  // res.status(200).send("Webhook received");
+
+  // redirect to frontend
+
+  const frontend_link = "http://localhost:3000/";
+
+  res.redirect(frontend_link);
+
 });
 
 app.listen(PORT, () => {
