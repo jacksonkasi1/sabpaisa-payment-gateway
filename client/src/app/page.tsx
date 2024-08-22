@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, ChangeEvent, FormEvent } from 'react';
+import axios from 'axios';
 
 interface FormData {
   firstName: string;
@@ -28,17 +29,21 @@ export default function Home() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await fetch('/api/create-payment-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
+    
+    try {
+      const response = await axios.post('http://localhost:8000/api/create-payment-session', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    const data = await response.json();
-    if (data.url) {
-      window.location.href = `${data.url}?encData=${encodeURIComponent(data.encData)}&clientCode=${data.clientCode}`;
+      const data = response.data;
+      if (data.url) {
+        window.location.href = `${data.url}?encData=${encodeURIComponent(data.encData)}&clientCode=${data.clientCode}`;
+      }
+    } catch (error) {
+      console.error('Error creating payment session:', error);
+      // Handle the error appropriately in your application
     }
   };
 
