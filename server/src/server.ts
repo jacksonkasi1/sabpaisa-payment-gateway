@@ -2,10 +2,12 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import crypto from 'crypto';
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+app.use(cors()); // Enable CORS for all routes
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -31,6 +33,12 @@ function decrypt(encData: string): string {
   decrypted += decipher.final('utf8');
   return decrypted;
 }
+
+app.get('/', (req: Request, res: Response) => {
+    res.json({
+        message: "server running..."
+    });
+});
 
 // Payment initiation route
 app.post('/create-payment-session', (req: Request, res: Response) => {
