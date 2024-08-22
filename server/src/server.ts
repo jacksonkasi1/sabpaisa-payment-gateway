@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import crypto from "crypto";
 import cors from "cors";
 import { env } from "./env";
+import { config } from "./config";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -53,19 +54,26 @@ app.post("/api/create-payment-session", (req: Request, res: Response) => {
   const clientTxnId = crypto.randomBytes(16).toString("hex");
 
   // Create the string for encryption
-  const stringForRequest = `payerName=${firstName.trim()} ${lastName.trim()}&payerEmail=${email.trim()}&payerMobile=${phone.trim()}&clientTxnId=${clientTxnId.trim()}&amount=${amount}&clientCode=${clientCode.trim()}&transUserName=${transUserName.trim()}&transUserPassword=${transUserPassword.trim()}&callbackUrl=https://afa8-103-43-65-80.ngrok-free.app/api/payment-webhook&channelId=W&transDate=${new Date().toISOString()}`;
+  const stringForRequest = [
+    `payerName=${firstName.trim()} ${lastName.trim()}`,
+    `payerEmail=${email.trim()}`,
+    `payerMobile=${phone.trim()}`,
+    `clientTxnId=${clientTxnId.trim()}`,
+    `amount=${amount}`,
+    `clientCode=${clientCode.trim()}`,
+    `transUserName=${transUserName.trim()}`,
+    `transUserPassword=${transUserPassword.trim()}`,
+    `callbackUrl=${config.callbackUrl}`,
+    `channelId=W`,
+    `transDate=${new Date().toISOString()}`
+  ].join('&');
 
   // Encrypt the string
   const encData = encrypt(stringForRequest);
 
-  // Set the payment session URL
-  const paymentSessionUrl =
-    // "https://securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
-    "https://stage-securepay.sabpaisa.in/SabPaisa/sabPaisaInit?v=1";
-
   // Send the encrypted data and other required parameters to the frontend
   res.json({
-    url: paymentSessionUrl,
+    url: config.stagingUrl,
     encData: encData,
     clientCode: clientCode,
   });
@@ -91,14 +99,8 @@ app.post("/api/payment-webhook", (req: Request, res: Response) => {
     console.log("Payment Failed or Other Status:", responseParams);
   }
 
-  // res.status(200).send("Webhook received");
-
-  // redirect to frontend
-
-  const frontend_link = "http://localhost:3000/";
-
-  res.redirect(frontend_link);
-
+  // Redirect to frontend
+  res.redirect(config.frontendUrl);
 });
 
 app.listen(PORT, () => {
