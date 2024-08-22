@@ -93,7 +93,10 @@ app.post("/api/payment-webhook", (req: Request, res: Response) => {
       return acc;
     }, {});
 
-  if (responseParams.status === "0000") {
+  // Check for payment success
+  const isPaymentSuccess = responseParams.status === "SUCCESS" && responseParams.statusCode === "0000";
+
+  if (isPaymentSuccess) {
     console.log("Payment Success:", responseParams);
   } else {
     console.log("Payment Failed or Other Status:", responseParams);
